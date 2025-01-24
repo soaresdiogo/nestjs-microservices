@@ -129,4 +129,10 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# Docker
+data
+
+# NPM
+.npmrc
+
 .DS_Store

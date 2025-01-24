@@ -1,0 +1,109 @@
+services:
+  # PostgreSQL
+  postgres:
+    container_name: postgres_nestjs_microservices
+    image: bitnami/postgresql:13.16.0
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nestjs_microservices
+      PGDATA: /data/postgres
+    volumes:
+      - ./data/pg:/data/postgres
+
+  # RabbitMQ
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3.10-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+      - '15692:15692'
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+    networks:
+      - app-network
+
+  # Redis
+  redis:
+    container_name: redis
+    image: redis:7
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
+
+  # Prometheus
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:latest
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - app-network
+
+  # Grafana
+  grafana:
+    container_name: grafana
+    image: grafana/grafana:latest
+    ports:
+      - '3000:3000'
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - app-network
+
+  # Microservices
+  order:
+    container_name: order
+    build:
+      context: "./order"
+      dockerfile: Dockerfile
+    command: npm run start:dev
+    depends_on:
+      - rabbitmq
+      - redis
+    ports:
+      - 3333:3333
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres_nestjs_microservices:5432/nestjs_microservices
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+    networks:
+      - app-network
+
+  stock:
+    container_name: stock
+    build:
+      context: "./stock"
+      dockerfile: Dockerfile
+    command: npm run start:dev
+    depends_on:
+      - rabbitmq
+      - redis
+    ports:
+      - 3334:3334
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres_nestjs_microservices:5432/nestjs_microservices
+      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+    networks:
+      - app-network
+
+volumes:
+  grafana_data:
+  prometheus_data:
+
+networks:
+  app-network:
+    driver: bridge
