@@ -105,11 +105,5 @@ Access Grafana and Prometheus dashboards to monitor RabbitMQ and system metrics.
 4. Push to the branch
 5. Open a Pull Request
 
-## 📜 License
-
-[Specify your license]
-
----
 
 Made with ♥ by [Diogo Soares]
-```
