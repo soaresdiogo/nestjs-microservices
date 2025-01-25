@@ -8,7 +8,7 @@ export class AppService {
 
   public publishMessage(messageDto: MessageDto): void {
     console.log('Publishing message:', JSON.stringify(messageDto));
-  this.rabbitMq.publish('order', 'stock', messageDto);
+    this.rabbitMq.publish('order', 'stock', messageDto);
   }
 }
 

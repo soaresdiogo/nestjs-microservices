@@ -1,17 +1,21 @@
+version: '3.8'
+
 services:
   # PostgreSQL
   postgres:
-    container_name: postgres_nestjs_microservices
-    image: bitnami/postgresql:13.16.0
+    container_name: postgres
+    image: postgres
     ports:
       - '5432:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: nestjs_microservices
+      POSTGRES_DB: nestjs-microservices
       PGDATA: /data/postgres
     volumes:
       - ./data/pg:/data/postgres
+    networks:
+      - app-network
 
   # RabbitMQ
   rabbitmq:
@@ -66,39 +70,40 @@ services:
       - app-network
 
   # Microservices
-  order:
-    container_name: order
-    build:
-      context: "./order"
-      dockerfile: Dockerfile
-    command: npm run start:dev
-    depends_on:
-      - rabbitmq
-      - redis
-    ports:
-      - 3333:3333
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres_nestjs_microservices:5432/nestjs_microservices
-      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
-    networks:
-      - app-network
+#   order:
+#     container_name: order
+#     build:
+#       context: "./order"
+#       dockerfile: Dockerfile
+#     command: npm run start:dev
+#     depends_on:
+#       - rabbitmq
+#       - redis
+#     ports:
+#       - 3333:3333
+#     environment:
+#       DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/nestjs-microservices
+#       RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+#     networks:
+#       - app-network
 
-  stock:
-    container_name: stock
-    build:
-      context: "./stock"
-      dockerfile: Dockerfile
-    command: npm run start:dev
-    depends_on:
-      - rabbitmq
-      - redis
-    ports:
-      - 3334:3334
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres_nestjs_microservices:5432/nestjs_microservices
-      RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
-    networks:
-      - app-network
+  # stock:
+  #   container_name: stock
+  #   build:
+  #     context: "./stock"
+  #     dockerfile: Dockerfile
+  #   command: npm run start:dev
+  #   depends_on:
+  #     - postgres
+  #     - rabbitmq
+  #     # - redis
+  #   ports:
+  #     - 3334:3334
+  #   environment:
+  #     DATABASE_URL: postgres://postgres:postgres@postgres:5432/nestjs-microservices
+  #     RABBITMQ_URL: amqp://admin:admin@rabbitmq:5672
+  #   networks:
+  #     - app-network
 
 volumes:
   grafana_data:

@@ -1,12 +1,10 @@
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { RabbitmqService } from './rabbitmq.service';
-import { env } from '../env';
+import { env } from 'src/infra/env/env';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     RabbitMQModule.forRoot(RabbitMQModule, {
       exchanges: [
         {
@@ -19,11 +17,18 @@ import { env } from '../env';
         },
       ],
       uri: `${env.RABBITMQ_URL}`,
-      enableControllerDiscovery: false,
+      enableControllerDiscovery: true,
       connectionInitOptions: {
         wait: true,
         timeout: 15000
       },
+      queues: [
+        {
+          name: 'stock-queue',
+          exchange: 'order',
+          routingKey: 'stock'
+        }
+      ]
     }),
   ],
   providers: [RabbitmqService],
