@@ -12,8 +12,6 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "seed": "dotenv -e .env tsx src/infra/database/drizzle/configs/seed.ts",
-    "docker:down": "docker compose down",
-    "docker:up": "docker compose up --build -d",
     "drizzle:migrate": "drizzle-kit migrate"
   },
   "dependencies": {

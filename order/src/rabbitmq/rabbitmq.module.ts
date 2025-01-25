@@ -7,7 +7,7 @@ import { env } from '../env';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'order',
