@@ -1,9 +1,10 @@
 import { Controller } from '@nestjs/common';
-
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
-import { StockService } from '@/infra/rabbitmq/services/stock.service';
+import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { z } from 'zod';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
+import { StockService } from '@/infra/rabbitmq/services/stock.service';
+import { SubtractQuantityDto } from './models/dto/subtract-quantity-dto';
 
 const subtractQuantitySchema = z.object({
   id: z.string(),
@@ -12,6 +13,7 @@ const subtractQuantitySchema = z.object({
 
 type SubtractQuantitySchema = z.infer<typeof subtractQuantitySchema>;
 
+@ApiTags('RabbitMQ')
 @Controller()
 export class SubtractQuantityController {
   constructor(private readonly stockService: StockService) {}
@@ -20,6 +22,11 @@ export class SubtractQuantityController {
     exchange: 'order',
     routingKey: 'stock',
     queue: 'stock-queue',
+  })
+  @ApiOperation({ summary: 'Subscribe to RabbitMQ messages for stock quantity subtraction' })
+  @ApiBody({
+    description: 'Payload of the RabbitMQ message',
+    type: SubtractQuantityDto,
   })
   public async pubSubHandler(data: SubtractQuantitySchema) {
     console.log('Received message:', JSON.stringify(data));

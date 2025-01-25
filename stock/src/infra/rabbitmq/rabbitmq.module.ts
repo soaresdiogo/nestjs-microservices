@@ -5,7 +5,7 @@ import { env } from 'src/infra/env/env';
 
 @Module({
   imports: [
-    RabbitMQModule.forRoot(RabbitMQModule, {
+    RabbitMQModule.forRoot({
       exchanges: [
         {
           name: 'order',
